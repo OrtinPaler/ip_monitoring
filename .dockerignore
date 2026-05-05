@@ -1,0 +1,11 @@
+.git
+.gitignore
+*.md
+spec/
+test/
+logs/
+tmp/
+.env
+docker-compose.yml
+Dockerfile
+Makefile

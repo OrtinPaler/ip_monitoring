@@ -1,0 +1,20 @@
+.env
+.env.*
+logs/
+tmp/
+*.log
+
+# Ignore bundler config
+/.bundle
+/vendor/bundle
+
+# Ignore database
+/config/database.yml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

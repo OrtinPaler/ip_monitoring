@@ -1,0 +1,63 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      RACK_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@db:5432/ip_monitoring_development
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
+    stdin_open: true
+    tty: true
+
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ip_monitoring_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq -r ./config/sidekiq.rb
+    environment:
+      RACK_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@db:5432/ip_monitoring_development
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_data:
